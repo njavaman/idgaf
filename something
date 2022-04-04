@@ -1,0 +1,121 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Scanner;
+import java.util.Set;
+
+import javafx.application.Application;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
+import javafx.stage.Stage;
+
+
+
+public class main extends Application {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public void start(Stage stage) {
+		HashMap<String, Integer> word_count = countWords("C:\\Users\\miles\\Desktop\\Macbeth.txt");
+		// Creates a sorted List of all word counts
+		List<Entry<String, Integer>> list = new ArrayList<Entry<String, Integer>>(word_count.entrySet());
+		list.sort(Entry.comparingByValue());
+		Collections.reverse(list);
+
+		stage.setTitle("MacBeth Word Occurences");
+		// Defining the x axis
+		CategoryAxis xAxis = new CategoryAxis();
+		xAxis.setLabel("Words");
+
+		// Defining the y axis
+		NumberAxis yAxis = new NumberAxis();
+		yAxis.setLabel("Word Count");
+
+		// Creating the bar chart
+		BarChart<String, Number> linechart = new BarChart<String, Number>(xAxis, yAxis);
+		linechart.setTitle("MacBeth Word Occurences");
+
+		// Prepare XYChart.Series objects by setting data
+		XYChart.Series seriesRecursive = new XYChart.Series();
+
+		for (int i = 0; i < 10; i++) {
+
+			seriesRecursive.getData().add(new XYChart.Data(list.get(i).getKey(), list.get(i).getValue()));
+
+		}
+
+		// Setting the data to Line chart
+		linechart.getData().add(seriesRecursive);
+
+		// Creating a Group object
+		Group root = new Group(linechart);
+
+		// Creating a scene object
+		Scene scene = new Scene(root, 600, 400);
+
+		// Adding scene to the stage
+		stage.setScene(scene);
+
+		// Displaying the contents of the stage
+		stage.show();
+
+	}
+
+	public static void main(String args[]) {
+		launch(args);
+
+	}
+
+	public static HashMap<String, Integer> countWords(String fileName) {
+		File file = new File(fileName);
+		Scanner scan = null;
+		try {
+			scan = new Scanner(file);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		// Initializes a Map that will contain the word count
+		HashMap<String, Integer> word_count = new HashMap<String, Integer>();
+
+		while (scan.hasNext()) {
+			String word = scan.next().toLowerCase(); // Fetches the next word puts them all to lowerCase
+			// Parses out punctuation for edge cases
+			word = word.replace(".", "");
+			word = word.replace(",", "");
+			word = word.replace("?", "");
+			word = word.replace("!", "");
+			word = word.replace(";", "");
+			word = word.replace(":", "");
+			word = word.replace("{", "");
+			word = word.replace("}", "");
+			word = word.replace("[", "");
+			word = word.replace("]", "");
+			word = word.replace("(", "");
+			word = word.replace(")", "");
+			word = word.replace("&", "");
+			// Fetches the set of all words counted thus far
+			Set<String> set = word_count.keySet();
+			if (word.equals("")) { // Checks if the word is empty and skips if so
+				continue;
+			}
+			if (!set.contains(word)) { // Counts the word
+				word_count.put(word, 1);
+			} else {
+				word_count.replace(word, (Integer) word_count.get(word) + 1);
+			}
+
+		}
+		return word_count;
+
+	}
+
+}
